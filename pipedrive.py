@@ -196,7 +196,7 @@ class Voximplant_api:
         """
         for c in contacts:
             self.send_message_number("521",contacts[c],"Hola "+c+"\n"+sms)
-
+processed=[]
 PIPEDRIVE_API_URL = "https://tovox.pipedrive.com/"#"https://api.pipedrive.com/v1/"
 route = '/v1/deals'
 api_token = 'fdd6d9b99b3ce395ce9bba99521cfbe0a3890cdd'
@@ -206,7 +206,9 @@ deals_to_send=pipedrive.caller()
 m=Monday()
 for deal in deals_to_send:
     print(str(deal))
-    m.posting(deal.get_deal_name(), deal.get_product_owner(), deal.get_follower(), deal.get_date().split()[0])
+    processed.append(deal)
+    if deal not in processed:
+        m.posting(deal.get_deal_name(), deal.get_product_owner(), deal.get_follower(), deal.get_date().split()[0])
 """
 voximplant= Voximplant_api("b3288643-f855-4006-8662-c1e7da7325a0_private.json", 15623407185)
 voximplant.call_list_of_numbers(pipedrive.get_persons_to_call(),"Este es un mensaje de prueba, saludos.")
