@@ -120,9 +120,9 @@ class PipeDrive_api:
 class Monday:
 #import requests
 #import json
-    def __init__(self):
-        self.apiKey="eyJhbGciOiJIUzI1NiJ9.eyJ0aWQiOjE2NzQxODc2MywidWlkIjozMTYyMzI2NSwiaWFkIjoiMjAyMi0wNi0yN1QwMDo1Nzo1NS44MzZaIiwicGVyIjoibWU6d3JpdGUiLCJhY3RpZCI6MTI2MDkxNTUsInJnbiI6InVzZTEifQ.9Eq1QGJMfaerjKwulkPUmkPRhDSdsBYsALj6jNHcZX0"
-        self.apiUrl = "https://api.monday.com/v2"
+    def __init__(self, MONDAY_API_KEY, MONDAY_API_URL ):
+        self.apiKey=MONDAY_API_KEY#"eyJhbGciOiJIUzI1NiJ9.eyJ0aWQiOjE2NzQxODc2MywidWlkIjozMTYyMzI2NSwiaWFkIjoiMjAyMi0wNi0yN1QwMDo1Nzo1NS44MzZaIiwicGVyIjoibWU6d3JpdGUiLCJhY3RpZCI6MTI2MDkxNTUsInJnbiI6InVzZTEifQ.9Eq1QGJMfaerjKwulkPUmkPRhDSdsBYsALj6jNHcZX0"
+        self.apiUrl =MONDAY_API_URL# "https://api.monday.com/v2"
         self.headers = {"Authorization" : self.apiKey}
         """
         self.query5 = 'mutation ($myItemName: String!, $columnVals: JSON!) { create_item (board_id:YOUR_BOARD_ID, item_name:$myItemName, column_values:$columnVals) { id } }'
@@ -196,20 +196,56 @@ class Voximplant_api:
         """
         for c in contacts:
             self.send_message_number("521",contacts[c],"Hola "+c+"\n"+sms)
-processed=[]
-PIPEDRIVE_API_URL = "https://tovox.pipedrive.com/"#"https://api.pipedrive.com/v1/"
-route = '/v1/deals'
-api_token = 'fdd6d9b99b3ce395ce9bba99521cfbe0a3890cdd'
+"""
+voximplant= Voximplant_api("b3288643-f855-4006-8662-c1e7da7325a0_private.json", 15623407185)
+voximplant.call_list_of_numbers(pipedrive.get_persons_to_call(),"Este es un mensaje de prueba, saludos.")
+"""
+
 #get_response = requests.get(PIPEDRIVE_API_URL+route+'?api_token=' + api_token)
+"""
 pipedrive= PipeDrive_api(PIPEDRIVE_API_URL, api_token, route)
 deals_to_send=pipedrive.caller()
 m=Monday()
 for deal in deals_to_send:
     print(str(deal))
-    processed.append(deal)
-    if deal not in processed:
+    comprobator=deal.get_deal_name().split("-")[len(deal.get_deal_name().split("-")) -1]
+    if deal not in processed and comprobator=="c":
+        print("Enviando")
+        processed.append(deal)
         m.posting(deal.get_deal_name(), deal.get_product_owner(), deal.get_follower(), deal.get_date().split()[0])
 """
-voximplant= Voximplant_api("b3288643-f855-4006-8662-c1e7da7325a0_private.json", 15623407185)
-voximplant.call_list_of_numbers(pipedrive.get_persons_to_call(),"Este es un mensaje de prueba, saludos.")
+class Perpetuor:
 """
+Perpetuor allow us to simulate a machine with an stop of code to get the data,
+analyze it and finally decide whether it would be sent to the crm(Monday)
+"""
+    def __init__(self, PIPEDRIVE_API_URL, route, api_token,  MONDAY_API_KEY, MONDAY_API_URL):
+        self.PIPEDRIVE_API_URL=PIPEDRIVE_API_URL
+        self.route=route
+        self.api_token=api_token
+        self.pipedrive=PipeDrive_api(PIPEDRIVE_API_URL, api_token, route)
+        self.m=Monday(MONDAY_API_KEY, MONDAY_API_URL)
+        self.processed=[]
+
+    def perpet(self):
+        while True:
+            try:
+                deals_to_send=self.pipedrive.caller()
+                for deal in deals_to_send:
+                    print(str(deal))
+                    comprobator=deal.get_deal_name().split("-")[len(deal.get_deal_name().split("-")) -1]
+                    if deal not in processed and comprobator=="c":
+                        print("Enviando")
+                        processed.append(deal)
+                        m.posting(deal.get_deal_name(), deal.get_product_owner(), deal.get_follower(), deal.get_date().split()[0])
+            except:
+                m.posting("ERROR[PERPET]", "None", "None", "None")
+            time.sleep(600)
+
+PIPEDRIVE_API_URL = "https://tovox.pipedrive.com/"#"https://api.pipedrive.com/v1/"
+route = '/v1/deals'
+api_token = 'fdd6d9b99b3ce395ce9bba99521cfbe0a3890cdd'
+MONDAY_API_KEY="eyJhbGciOiJIUzI1NiJ9.eyJ0aWQiOjE2NzQxODc2MywidWlkIjozMTYyMzI2NSwiaWFkIjoiMjAyMi0wNi0yN1QwMDo1Nzo1NS44MzZaIiwicGVyIjoibWU6d3JpdGUiLCJhY3RpZCI6MTI2MDkxNTUsInJnbiI6InVzZTEifQ.9Eq1QGJMfaerjKwulkPUmkPRhDSdsBYsALj6jNHcZX0"
+MONDAY_API_URL="https://api.monday.com/v2"
+p=Perpetuor(PIPEDRIVE_API_URL,route, api_token,MONDAY_API_KEY, MONDAY_API_URL)
+p.perpet()
