@@ -38,10 +38,11 @@ class Deal:
     """
     This class will allow us to model Deals, by name, product owner and follower
     """
-    def __init__(self, deal_name, product_owner, follower):
+    def __init__(self, deal_name, product_owner, follower,date):
         self.deal_name=deal_name
         self.product_owner=product_owner
         self.follower=follower
+        self.date=date
 
     def get_deal_name(self):
         return self.deal_name
@@ -50,10 +51,13 @@ class Deal:
         return self.product_owner
 
     def get_follower(self):
-        return self.product_owner
+        return self.follower
+
+    def get_date(self):
+        return self.date
 
     def __str__(self):
-        return "Title:"+self.deal_name+", PO: "+self.product_owner+ " follower:"+self.follower
+        return "Title:"+self.deal_name+", PO: "+self.product_owner+ " follower:"+self.follower+" date: "+self.date
 
 class PipeDrive_api:
     """
@@ -87,12 +91,14 @@ class PipeDrive_api:
         for x in get_content['data']:
             #print(str(x['title']))#Nombre del trato
             #print(str(x['person_name']))#Product Owner
-            #print(str(x['owner_name']))#Seguidor
-            deals.append(Deal(x['title'], x['person_name'], x['owner_name']))
+            #x['owner_name']#follower
+            #print(str(x['update_time']))#fecha
+            deals.append(Deal(x['title'], x['person_name'], x['owner_name'], x['update_time']))
             #for y in x:
                 #print(y)
-        for d in deals:
-            print(str(d))
+        #for d in deals:
+            #print(str(d))
+        return deals
         """
         for x in get_content['data']:
             print(x['name'],x['phone'][0]['value'])
@@ -118,10 +124,34 @@ class Monday:
         self.apiKey="eyJhbGciOiJIUzI1NiJ9.eyJ0aWQiOjE2NzQxODc2MywidWlkIjozMTYyMzI2NSwiaWFkIjoiMjAyMi0wNi0yN1QwMDo1Nzo1NS44MzZaIiwicGVyIjoibWU6d3JpdGUiLCJhY3RpZCI6MTI2MDkxNTUsInJnbiI6InVzZTEifQ.9Eq1QGJMfaerjKwulkPUmkPRhDSdsBYsALj6jNHcZX0"
         self.apiUrl = "https://api.monday.com/v2"
         self.headers = {"Authorization" : self.apiKey}
-        self.query2 = '{ boards (limit:1) {id name} }'
-        self.data = {'query' : self.query2}
+        """
+        self.query5 = 'mutation ($myItemName: String!, $columnVals: JSON!) { create_item (board_id:YOUR_BOARD_ID, item_name:$myItemName, column_values:$columnVals) { id } }'
+        vars = {
+        'myItemName' : 'Hello everyone!',
+        'columnVals' : json.dumps({
+        'status' : {'label' : 'Done'},
+        'date4' : {'date' : '1993-08-27'}
+         }) 
+        }
+        #self.query3='mutation{ create_item (board_id:2859016879, item_name:"WHAT IS UP MY FRIENDS!") { id } }'
+        #self.query2 = '{ boards (limit:10) {Trato} }'
+        self.data = {'query' : self.query3}
+        """
     
-    def posting(self):
+    def posting(self, deal_name, product_owner,follower,date):
+        self.query5 = 'mutation($myItemName: String!, $columnVals: JSON!){create_item (board_id:2859016879, item_name:$myItemName, column_values:$columnVals){id}}'
+        vars = {
+        'myItemName' : deal_name,
+        'columnVals' : json.dumps({
+        'status' : {'label' : 'En Proceso', 'color':'#FDAB3D'},
+        'date' : {'date' : date},
+        'texto':  product_owner,
+        'texto6':follower# date '1993-08-27'
+         }) 
+        }
+        self.query3='mutation{ create_item (board_id:2859016879, item_name:'"WHAT IS UP MY FRIENDS!2"') { id } }'
+        #self.query2 = '{ boards (limit:10) {Trato} }'
+        self.data = {'query' : self.query5, 'variables' : vars}
         r = requests.post(url=self.apiUrl, json=self.data, headers=self.headers)
         print(r)
 
@@ -172,9 +202,11 @@ route = '/v1/deals'
 api_token = 'fdd6d9b99b3ce395ce9bba99521cfbe0a3890cdd'
 #get_response = requests.get(PIPEDRIVE_API_URL+route+'?api_token=' + api_token)
 pipedrive= PipeDrive_api(PIPEDRIVE_API_URL, api_token, route)
-pipedrive.caller()
-#m=Monday()
-#m.posting()
+deals_to_send=pipedrive.caller()
+m=Monday()
+for deal in deals_to_send:
+    print(str(deal))
+    m.posting(deal.get_deal_name(), deal.get_product_owner(), deal.get_follower(), deal.get_date().split()[0])
 """
 voximplant= Voximplant_api("b3288643-f855-4006-8662-c1e7da7325a0_private.json", 15623407185)
 voximplant.call_list_of_numbers(pipedrive.get_persons_to_call(),"Este es un mensaje de prueba, saludos.")
