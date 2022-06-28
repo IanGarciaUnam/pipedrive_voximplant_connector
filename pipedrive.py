@@ -1,9 +1,9 @@
 #  data retrieval
 import urllib3
 from urllib3 import request
-# json data
 import requests
 import json
+import time
 """
 PIPEDRIVE_API_URL = "https://tovox.pipedrive.com/"#"https://api.pipedrive.com/v1/"
 route = '/v1/persons'
@@ -215,10 +215,10 @@ for deal in deals_to_send:
         m.posting(deal.get_deal_name(), deal.get_product_owner(), deal.get_follower(), deal.get_date().split()[0])
 """
 class Perpetuor:
-"""
-Perpetuor allow us to simulate a machine with an stop of code to get the data,
-analyze it and finally decide whether it would be sent to the crm(Monday)
-"""
+    """
+    Perpetuor allow us to simulate a machine with an stop of code to get the data,
+    analyze it and finally decide whether it would be sent to the crm(Monday)
+    """
     def __init__(self, PIPEDRIVE_API_URL, route, api_token,  MONDAY_API_KEY, MONDAY_API_URL):
         self.PIPEDRIVE_API_URL=PIPEDRIVE_API_URL
         self.route=route
@@ -234,13 +234,14 @@ analyze it and finally decide whether it would be sent to the crm(Monday)
                 for deal in deals_to_send:
                     print(str(deal))
                     comprobator=deal.get_deal_name().split("-")[len(deal.get_deal_name().split("-")) -1]
-                    if deal not in processed and comprobator=="c":
+                    if not deal.get_deal_name() in self.processed and comprobator=="c":
                         print("Enviando")
-                        processed.append(deal)
-                        m.posting(deal.get_deal_name(), deal.get_product_owner(), deal.get_follower(), deal.get_date().split()[0])
+                        self.processed.append(deal.get_deal_name())
+                        self.m.posting(deal.get_deal_name(), deal.get_product_owner(), deal.get_follower(), deal.get_date().split()[0])
             except:
-                m.posting("ERROR[PERPET]", "None", "None", "None")
-            time.sleep(600)
+                self.m.posting("ERROR[PERPET]", "None", "None", "None")
+            print("In sleep")
+            time.sleep(60)
 
 PIPEDRIVE_API_URL = "https://tovox.pipedrive.com/"#"https://api.pipedrive.com/v1/"
 route = '/v1/deals'
