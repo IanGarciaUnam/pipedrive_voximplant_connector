@@ -156,32 +156,32 @@ class Monday:
         print(r)
 
 
-
+""""
 from voximplant.apiclient import VoximplantAPI, VoximplantException
 class Voximplant_api:
-    """
+    
     Voximplant class api to call 
     A class to connect with Voximplant Platform
-    """
+    
 
     def __init__(self,name_json, my_number):
-        """
+      
         Builder of Voximplant_api
         name_json : str -> Json file of credentials api
         my_number:str -> origin number
-        """
+        
         self.api = VoximplantAPI(name_json)
         self.my_number = my_number
 
 
     def send_message_number(self,ext,number,sms):
-        """
+        
         For test we'll be sending messages
         PARAMS:
             ext:str -> Extension (country's lada) phone number
             number: str -> Number to call
             sms:str -> Message to sent
-        """
+        
         destination=number
         try:
             res=self.api.send_sms_message(self.my_number, ext+destination, sms)
@@ -190,13 +190,13 @@ class Voximplant_api:
             print("Error:{}".format(e.message))
 
     def call_list_of_numbers(self,contacts,sms):
-        """
+        
         contacts : dict -> Iterable dict of contacts, format {"name":"phone_number"}
         sms : str -> Message to sent 
-        """
+      
         for c in contacts:
             self.send_message_number("521",contacts[c],"Hola "+c+"\n"+sms)
-"""
+
 voximplant= Voximplant_api("b3288643-f855-4006-8662-c1e7da7325a0_private.json", 15623407185)
 voximplant.call_list_of_numbers(pipedrive.get_persons_to_call(),"Este es un mensaje de prueba, saludos.")
 """
