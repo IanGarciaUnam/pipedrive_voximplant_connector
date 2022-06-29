@@ -31,8 +31,8 @@ values={"domain":"https://kit.voximplant.com",
 'phone':'525534452621',
 'variables': "[{'client_name':'ian'})]"
 }
-vvk=requests.post("https://kit.voximplant.com/", auth=('delfino', 'Delfino*2021'), json=values)
-print(vvk)
+#vvk=requests.post("https://kit.voximplant.com/", auth=('delfino', 'Delfino*2021'), json=values)
+#print(vvk)
 
 class Deal:
     """
@@ -124,6 +124,7 @@ class Monday:
         self.apiKey=MONDAY_API_KEY#"eyJhbGciOiJIUzI1NiJ9.eyJ0aWQiOjE2NzQxODc2MywidWlkIjozMTYyMzI2NSwiaWFkIjoiMjAyMi0wNi0yN1QwMDo1Nzo1NS44MzZaIiwicGVyIjoibWU6d3JpdGUiLCJhY3RpZCI6MTI2MDkxNTUsInJnbiI6InVzZTEifQ.9Eq1QGJMfaerjKwulkPUmkPRhDSdsBYsALj6jNHcZX0"
         self.apiUrl =MONDAY_API_URL# "https://api.monday.com/v2"
         self.headers = {"Authorization" : self.apiKey}
+        self.deals_from_monday=[]
         """
         self.query5 = 'mutation ($myItemName: String!, $columnVals: JSON!) { create_item (board_id:YOUR_BOARD_ID, item_name:$myItemName, column_values:$columnVals) { id } }'
         vars = {
@@ -155,14 +156,34 @@ class Monday:
         r = requests.post(url=self.apiUrl, json=self.data, headers=self.headers)
         print(r)
 
+    def get(self):
+        """
+        Get deal names from Monday Board
+        """
+        #import requests import json
+        #apiKey = "YOUR_API_KEY_HERE"
+        #apiUrl = "https://api.monday.com/v2"
+        #headers = {"Authorization" : apiKey}
+        query2 = '{boards(limit:1) { name id description items { name column_values{title id type text } } } }'
+        data = {'query' : query2}
+        r = requests.post(url=self.apiUrl, json=data, headers=self.headers) # make request
+        board=r.json()
+        x=board['data']['boards']
+        for y in x:
+            for m in (y['items']):
+                deal_name=m['name']
+                if not deal_name in self.deals_from_monday:
+                    self.deals_from_monday.append(m['name'])
+        return self.deals_from_monday
 
-""""
-from voximplant.apiclient import VoximplantAPI, VoximplantException
+
+
+#from voximplant.apiclient import VoximplantAPI, VoximplantException
 class Voximplant_api:
-    
+    """
     Voximplant class api to call 
     A class to connect with Voximplant Platform
-    
+    """
 
     def __init__(self,name_json, my_number):
       
@@ -213,7 +234,7 @@ for deal in deals_to_send:
         print("Enviando")
         processed.append(deal)
         m.posting(deal.get_deal_name(), deal.get_product_owner(), deal.get_follower(), deal.get_date().split()[0])
-"""
+
 class Perpetuor:
     """
     Perpetuor allow us to simulate a machine with an stop of code to get the data,
@@ -228,20 +249,24 @@ class Perpetuor:
         self.processed=[]
 
     def perpet(self):
+        """
+        Keeps the function alive to send and receive message from Pipedrive to Monday, from Monday
+        and finally decides if post it or not
+        """
         while True:
             try:
                 deals_to_send=self.pipedrive.caller()
                 for deal in deals_to_send:
                     print(str(deal))
                     comprobator=deal.get_deal_name().split("-")[len(deal.get_deal_name().split("-")) -1]
-                    if not deal.get_deal_name() in self.processed and comprobator=="c":
+                    if not deal.get_deal_name() in self.processed and not deal.get_deal_name() in self.m.get()  and comprobator=="c":
                         print("Enviando")
                         self.processed.append(deal.get_deal_name())
                         self.m.posting(deal.get_deal_name(), deal.get_product_owner(), deal.get_follower(), deal.get_date().split()[0])
             except:
                 self.m.posting("ERROR[PERPET]", "None", "None", "None")
             print("In sleep")
-            time.sleep(60)
+            time.sleep(30)
 
 PIPEDRIVE_API_URL = "https://tovox.pipedrive.com/"#"https://api.pipedrive.com/v1/"
 route = '/v1/deals'
