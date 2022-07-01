@@ -38,11 +38,13 @@ class Deal:
     """
     This class will allow us to model Deals, by name, product owner and follower
     """
-    def __init__(self, deal_name, product_owner, follower,date):
+    def __init__(self, deal_name, product_owner, follower,date, org_name, notes):
         self.deal_name=deal_name
         self.product_owner=product_owner
         self.follower=follower
         self.date=date
+        self.org_name=org_name
+        self.notes=notes
 
     def get_deal_name(self):
         return self.deal_name
@@ -55,6 +57,12 @@ class Deal:
 
     def get_date(self):
         return self.date
+
+    def get_org_name(self):
+        return self.org_name
+
+    def get_notes(self):
+        return self.notes
 
     def __str__(self):
         return "Title:"+self.deal_name+", PO: "+self.product_owner+ " follower:"+self.follower+" date: "+self.date
@@ -93,9 +101,15 @@ class PipeDrive_api:
             #print(str(x['person_name']))#Product Owner
             #x['owner_name']#follower
             #print(str(x['update_time']))#fecha
-            deals.append(Deal(x['title'], x['person_name'], x['owner_name'], x['update_time']))
+            #print(str(x['update_time']))#hora
+            #print(str(x['org_name']))#nombre de la empresa
+            #print(x['notes_count'])
+            #print(x['next_activity_note'])#Incluye notas teléfono y nombre
+            #print(x['next_activity_time'])
+            deals.append(Deal(x['title'], x['person_name'], x['owner_name'], x['update_time'], x['org_name'], x['next_activity_note']))
             #for y in x:
-                #print(y)
+                #print(y + " : \n")
+                #print(x[y])
         #for d in deals:
             #print(str(d))
         return deals
@@ -139,7 +153,7 @@ class Monday:
         self.data = {'query' : self.query3}
         """
     
-    def posting(self, deal_name, product_owner,follower,date):
+    def posting(self, deal_name, product_owner,follower,date, org_name, notes):
         self.query5 = 'mutation($myItemName: String!, $columnVals: JSON!){create_item (board_id:2859016879, item_name:$myItemName, column_values:$columnVals){id}}'
         vars = {
         'myItemName' : deal_name,
@@ -147,7 +161,10 @@ class Monday:
         'status' : {'label' : 'En Proceso', 'color':'#FDAB3D'},
         'date' : {'date' : date},
         'texto':  product_owner,
-        'texto6':follower# date '1993-08-27'
+        'texto6':follower,# date '1993-08-27'
+        'texto66':org_name,
+        'texto63':notes
+
          }) 
         }
         self.query3='mutation{ create_item (board_id:2859016879, item_name:'"WHAT IS UP MY FRIENDS!2"') { id } }'
@@ -262,7 +279,7 @@ class Perpetuor:
                     if not deal.get_deal_name() in self.processed and not deal.get_deal_name() in self.m.get()  and comprobator=="c":
                         print("Enviando")
                         self.processed.append(deal.get_deal_name())
-                        self.m.posting(deal.get_deal_name(), deal.get_product_owner(), deal.get_follower(), deal.get_date().split()[0])
+                        self.m.posting(deal.get_deal_name(), deal.get_product_owner(), deal.get_follower(), deal.get_date().split()[0], deal.get_org_name(), deal.get_notes())
             except:
                 self.m.posting("ERROR[PERPET]", "None", "None", "None")
             print("In sleep")
@@ -273,5 +290,7 @@ route = '/v1/deals'
 api_token = 'fdd6d9b99b3ce395ce9bba99521cfbe0a3890cdd'
 MONDAY_API_KEY="eyJhbGciOiJIUzI1NiJ9.eyJ0aWQiOjE2NzQxODc2MywidWlkIjozMTYyMzI2NSwiaWFkIjoiMjAyMi0wNi0yN1QwMDo1Nzo1NS44MzZaIiwicGVyIjoibWU6d3JpdGUiLCJhY3RpZCI6MTI2MDkxNTUsInJnbiI6InVzZTEifQ.9Eq1QGJMfaerjKwulkPUmkPRhDSdsBYsALj6jNHcZX0"
 MONDAY_API_URL="https://api.monday.com/v2"
+#pipedrive=PipeDrive_api(PIPEDRIVE_API_URL, api_token, route)
+#pipedrive.caller()
 p=Perpetuor(PIPEDRIVE_API_URL,route, api_token,MONDAY_API_KEY, MONDAY_API_URL)
 p.perpet()
