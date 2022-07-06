@@ -275,10 +275,11 @@ class Perpetuor:
         local_list_from_get_monday = []
         while True:
             try:
-                print(local_list_from_get_monday)
+                
                 for block in self.m.get():
                     if not block in local_list_from_get_monday:
                         local_list_from_get_monday.append(block)
+                print(local_list_from_get_monday)
                 deals_to_send=self.pipedrive.caller()
                 for deal in deals_to_send:
                     #print(str(deal))
