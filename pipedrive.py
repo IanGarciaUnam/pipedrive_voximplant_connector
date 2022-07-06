@@ -270,13 +270,15 @@ class Perpetuor:
         Keeps the function alive to send and receive message from Pipedrive to Monda, from Monday
         and finally decides if post it or not
         """
+        local_list_from_get_monday = []
         while True:
             try:
+                local_list_from_get_monday.append(self.m.get())
                 deals_to_send=self.pipedrive.caller()
                 for deal in deals_to_send:
                     print(str(deal))
                     comprobator=deal.get_deal_name().split("-")[len(deal.get_deal_name().split("-")) -1]
-                    if not deal.get_deal_name() in self.processed and not deal.get_deal_name() in self.m.get()  and comprobator=="c":
+                    if not deal.get_deal_name() in self.processed and not deal.get_deal_name() in local_list_from_get_monday and comprobator=="c":
                         print("Enviando")
                         self.processed.append(deal.get_deal_name())
                         self.m.posting(deal.get_deal_name(), deal.get_product_owner(), deal.get_follower(), deal.get_date().split()[0], deal.get_org_name(), deal.get_notes())
