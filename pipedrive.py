@@ -98,7 +98,7 @@ class PipeDrive_api:
         get_content=json.loads(get_response.content)
         #print(get_content)
         for x in get_content['data']:
-            print(str(x['title']),x['pipeline_id'])#Nombre del trato
+            #print(str(x['title']),x['pipeline_id'])#Nombre del trato
             #print(str(x['person_name']))#Product Owner
             #x['owner_name']#follower
             #print(str(x['update_time']))#fecha
@@ -156,16 +156,16 @@ class Monday:
         """
     
     def posting(self, deal_name, product_owner,follower,date, org_name, notes):
-        self.query5 = 'mutation($myItemName: String!, $columnVals: JSON!){create_item (board_id:2859016879, item_name:$myItemName, column_values:$columnVals){id}}'
+        self.query5 = 'mutation($myItemName: String!, $columnVals: JSON!){create_item (board_id:2905311888, item_name:$myItemName, column_values:$columnVals){id}}'
         vars = {
         'myItemName' : deal_name,
         'columnVals' : json.dumps({
         'status' : {'label' : 'En Proceso', 'color':'#FDAB3D'},
         'date' : {'date' : date},
         'texto':  product_owner,
-        'texto6':follower,# date '1993-08-27'
-        'texto66':org_name,
-        'texto63':notes
+        'texto5':follower,# date '1993-08-27'
+        'texto8':org_name,
+        'texto0':notes
 
          }) 
         }
@@ -275,22 +275,26 @@ class Perpetuor:
         local_list_from_get_monday = []
         while True:
             try:
-                local_list_from_get_monday.append(self.m.get())
+                print(local_list_from_get_monday)
+                for block in self.m.get():
+                    if not block in local_list_from_get_monday:
+                        local_list_from_get_monday.append(block)
                 deals_to_send=self.pipedrive.caller()
                 for deal in deals_to_send:
                     #print(str(deal))
                     #comprobator=deal.get_deal_name().split()[len(deal.get_deal_name().split())-1]
                     #
                     comprobator=deal.get_deal_name().split("-")[len(deal.get_deal_name().split("-")) -1]
-                    print(comprobator)
+                    #print(comprobator)
                     if not deal.get_deal_name() in self.processed and not deal.get_deal_name() in local_list_from_get_monday and comprobator=="c":
                         print("Enviando")
+                        print(deal.get_deal_name(), comprobator)
                         self.processed.append(deal.get_deal_name())
                         self.m.posting(deal.get_deal_name(), deal.get_product_owner(), deal.get_follower(), deal.get_date().split()[0], deal.get_org_name(), deal.get_notes())
             except:
                 self.m.posting("ERROR[PERPET]", "None", "None", "None", "None", "None" )
             print("In sleep")
-            time.sleep(30)
+            time.sleep(10)
 
 PIPEDRIVE_API_URL = "https://bullishmx2.pipedrive.com/"#"https://bullishmx2.pipedrive.com"#"https://tovox.pipedrive.com/"#"https://api.pipedrive.com/v1/"
 route = '/v1/pipelines/1/deals'#'/v1/deals'
