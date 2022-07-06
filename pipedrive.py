@@ -73,7 +73,7 @@ class PipeDrive_api:
     from pipedrive/persons in deals
     """
 
-    def __init__(self, pipedrive_url, api_token,route='/v1/persons'):
+    def __init__(self, pipedrive_url, api_token,route='/v1/deals'):
         """
         Pipedrive api initializator
         PARAMS:
@@ -94,10 +94,11 @@ class PipeDrive_api:
         name and phone number
         """
         deals=[]
-        get_response = requests.get(self.pipedrive_url+self.route+'?api_token=' + self.api_token)
+        get_response = requests.get(self.pipedrive_url+self.route+'?limit=500&api_token=' + self.api_token)
         get_content=json.loads(get_response.content)
+        #print(get_content)
         for x in get_content['data']:
-            #print(str(x['title']))#Nombre del trato
+            print(str(x['title']),x['pipeline_id'])#Nombre del trato
             #print(str(x['person_name']))#Product Owner
             #x['owner_name']#follower
             #print(str(x['update_time']))#fecha
@@ -105,13 +106,14 @@ class PipeDrive_api:
             #print(str(x['org_name']))#nombre de la empresa
             #print(x['notes_count'])
             #print(x['next_activity_note'])#Incluye notas teléfono y nombre
-            #print(x['next_activity_time'])
+            #print(x['pipeline_id'])
             deals.append(Deal(x['title'], x['person_name'], x['owner_name'], x['update_time'], x['org_name'], x['next_activity_note']))
             #for y in x:
                 #print(y + " : \n")
                 #print(x[y])
         #for d in deals:
             #print(str(d))
+        print(len(deals))
         return deals
         """
         for x in get_content['data']:
@@ -276,21 +278,24 @@ class Perpetuor:
                 local_list_from_get_monday.append(self.m.get())
                 deals_to_send=self.pipedrive.caller()
                 for deal in deals_to_send:
-                    print(str(deal))
+                    #print(str(deal))
+                    #comprobator=deal.get_deal_name().split()[len(deal.get_deal_name().split())-1]
+                    #
                     comprobator=deal.get_deal_name().split("-")[len(deal.get_deal_name().split("-")) -1]
+                    print(comprobator)
                     if not deal.get_deal_name() in self.processed and not deal.get_deal_name() in local_list_from_get_monday and comprobator=="c":
                         print("Enviando")
                         self.processed.append(deal.get_deal_name())
                         self.m.posting(deal.get_deal_name(), deal.get_product_owner(), deal.get_follower(), deal.get_date().split()[0], deal.get_org_name(), deal.get_notes())
             except:
-                self.m.posting("ERROR[PERPET]", "None", "None", "None")
+                self.m.posting("ERROR[PERPET]", "None", "None", "None", "None", "None" )
             print("In sleep")
             time.sleep(30)
 
-PIPEDRIVE_API_URL = "https://tovox.pipedrive.com/"#"https://api.pipedrive.com/v1/"
-route = '/v1/deals'
-api_token = 'fdd6d9b99b3ce395ce9bba99521cfbe0a3890cdd'
-MONDAY_API_KEY="eyJhbGciOiJIUzI1NiJ9.eyJ0aWQiOjE2NzQxODc2MywidWlkIjozMTYyMzI2NSwiaWFkIjoiMjAyMi0wNi0yN1QwMDo1Nzo1NS44MzZaIiwicGVyIjoibWU6d3JpdGUiLCJhY3RpZCI6MTI2MDkxNTUsInJnbiI6InVzZTEifQ.9Eq1QGJMfaerjKwulkPUmkPRhDSdsBYsALj6jNHcZX0"
+PIPEDRIVE_API_URL = "https://bullishmx2.pipedrive.com/"#"https://bullishmx2.pipedrive.com"#"https://tovox.pipedrive.com/"#"https://api.pipedrive.com/v1/"
+route = '/v1/pipelines/1/deals'#'/v1/deals'
+api_token = 'fc39f5cc93a58b8711315038969f5e6c667f5dca'#bullish_api_pipedrive
+MONDAY_API_KEY="eyJhbGciOiJIUzI1NiJ9.eyJ0aWQiOjE2OTExNTg0MywidWlkIjoyMzQ3MDMzMywiaWFkIjoiMjAyMi0wNy0wNlQxOToxMzo1OC4xNjNaIiwicGVyIjoibWU6d3JpdGUiLCJhY3RpZCI6MzcyNzEwMiwicmduIjoidXNlMSJ9.p8QMHUsgFMBtj19s-c56uudu5ajGSDo34ToWuzRpCis"
 MONDAY_API_URL="https://api.monday.com/v2"
 #pipedrive=PipeDrive_api(PIPEDRIVE_API_URL, api_token, route)
 #pipedrive.caller()
