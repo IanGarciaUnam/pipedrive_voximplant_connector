@@ -288,12 +288,12 @@ class Perpetuor:
                 print(local_list_from_get_monday)
                 deals_to_send=self.pipedrive.caller()
                 for deal in deals_to_send:
-                    print(str(deal))
+                    #print(str(deal))
                     #comprobator=deal.get_deal_name().split()[len(deal.get_deal_name().split())-1]
                     #
                     comprobator=deal.get_deal_name().split("-")[len(deal.get_deal_name().split("-")) -1]
                     #print(comprobator)
-                    if not deal.get_deal_name() in self.processed and not deal.get_deal_name() in local_list_from_get_monday and comprobator=="c":
+                    if not deal.get_deal_name() in self.processed and comprobator=="c":#and not deal.get_deal_name() in local_list_from_get_monday and comprobator=="c":
                         print("Enviando")
                         print(deal.get_deal_name(), comprobator)
                         self.processed.append(deal.get_deal_name())
