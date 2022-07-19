@@ -266,6 +266,10 @@ class Perpetuor:
         self.pipedrive=PipeDrive_api(PIPEDRIVE_API_URL, api_token, route)
         self.m=Monday(MONDAY_API_KEY, MONDAY_API_URL)
         self.processed=[]
+        try:
+            open("proccesed.txt","x")
+        except:
+            print("file previously created")
 
     def perpet(self):
         """
@@ -275,14 +279,16 @@ class Perpetuor:
         local_list_from_get_monday = []
         while True:
             try:
-                
+                file=open("proccesed.txt","r")
+                self.processed=file.read().split("\n")
+                file.close()
                 for block in self.m.get():
                     if not block in local_list_from_get_monday:
                         local_list_from_get_monday.append(block)
                 print(local_list_from_get_monday)
                 deals_to_send=self.pipedrive.caller()
                 for deal in deals_to_send:
-                    #print(str(deal))
+                    print(str(deal))
                     #comprobator=deal.get_deal_name().split()[len(deal.get_deal_name().split())-1]
                     #
                     comprobator=deal.get_deal_name().split("-")[len(deal.get_deal_name().split("-")) -1]
@@ -292,6 +298,10 @@ class Perpetuor:
                         print(deal.get_deal_name(), comprobator)
                         self.processed.append(deal.get_deal_name())
                         self.m.posting(deal.get_deal_name(), deal.get_product_owner(), deal.get_follower(), deal.get_date().split()[0], deal.get_org_name(), deal.get_notes())
+                file_f=open("proccesed.txt","w")
+                for m in self.processed:
+                    file_f.write(m+"\n")
+                file_f.close()
             except:
                 self.m.posting("ERROR[PERPET]", "None", "None", "None", "None", "None" )
             print("In sleep")
